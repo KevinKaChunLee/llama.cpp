@@ -119,7 +119,7 @@ static inline void ggml_profile_format_tensor_parent(char *str, struct ggml_tens
         p += sprintf(p, "%s", t->src[0]->name);
 
         for (int i = 1; i < GGML_MAX_SRC && t->src[i]; i++) {
-            p += sprintf(p, " , ");
+            p += sprintf(p, " | ");
             p += sprintf(p, "%s", t->src[i]->name);
         }
     }
@@ -131,8 +131,8 @@ extern "C" void ggml_graph_profile_finish(struct ggml_cgraph *cg, int n_threads)
 
     ggml_profile_output *out = cg->prof->output;
 
-    fprintf(out->stream, "%s| node idx | op name | proc (nsec) | sync (nsec) | total (nsec) | op dims | op types | tensor name | tensor parent | \n", out->prefix);
-    fprintf(out->stream, "%s| -------: | :------ | ----------: | ----------: | -----------: | ------: | -------: | ----------: | ----------: |\n", out->prefix);
+    fprintf(out->stream, "node idx , op name , proc (nsec) , sync (nsec) , total (nsec) , op dims , op types , tensor name , tensor parent  \n", out->prefix);
+    // fprintf(out->stream, "%s| -------: | :------ | ----------: | ----------: | -----------: | ------: | -------: | ----------: | ----------: |\n", out->prefix);
 
     char dims[64 * GGML_MAX_SRC];
     char types[16 * GGML_MAX_SRC];
@@ -161,7 +161,7 @@ extern "C" void ggml_graph_profile_finish(struct ggml_cgraph *cg, int n_threads)
         ggml_profile_format_tensor_parent(parent_tensor, cg->nodes[i]);
 
         if (cg)
-        fprintf(out->stream, "%s| %04d | %10s | %10lu | %10lu | %10lu | %46s | %22s | %20s | %20s |\n", out->prefix,
+        fprintf(out->stream, "%04d , %10s , %10lu , %10lu , %10lu , %46s , %22s , %20s , %20s ,\n", 
             i, ggml_op_name(cg->nodes[i]->op),
             (unsigned long) p_nsec, (unsigned long) s_nsec, (unsigned long) t_nsec,
             dims, types, cg->nodes[i]->name, parent_tensor);
